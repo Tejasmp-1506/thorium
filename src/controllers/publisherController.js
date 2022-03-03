@@ -1,4 +1,4 @@
-const PublisherModel = require ("../model/publisherModel")
+const PublisherModel = require ("../models/publisherModel")
 
 
 const createPublisher = async function(req,res){
@@ -9,7 +9,7 @@ const createPublisher = async function(req,res){
 }
 
 const getPublisherData = async function (req,res){
-    let listofPublishers = await AuthodModel.find()
+    let listofPublishers = await PublisherModel.find()
     res.send({data : listofPublishers})
 }
 
