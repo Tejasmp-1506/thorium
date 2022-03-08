@@ -1,25 +1,27 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
 
-const createUser = async function (abcd, xyz) {
+const createUser = async function (req, res) {
+
   //You can name the req, res objects anything.
   //but the first parameter is always the request 
   //the second parameter is always the response
-  let data = abcd.body;
+
+  let data = req.body;
   let savedData = await userModel.create(data);
-  console.log(abcd.newAtribute);
-  xyz.send({ msg: savedData });
+ // console.log(req.newAtribute);
+  res.send({ msg: savedData });
 };
 
 const loginUser = async function (req, res) {
-  let userName = req.body.emailId;
   let password = req.body.password;
+  let userName = req.body.emailId;
 
   let user = await userModel.findOne({ emailId: userName, password: password });
   if (!user)
     return res.send({
       status: false,
-      msg: "username or the password is not corerct",
+      msg: "username or the password is not correct",
     });
 
   // Once the login is successful, create the jwt token with sign function
@@ -30,11 +32,11 @@ const loginUser = async function (req, res) {
   // The same secret will be used to decode tokens
   let token = jwt.sign(
     {
-      userId: user._id.toString(),
+      userId: user._id.toString(),  //payload part of token
       batch: "thorium",
       organisation: "FUnctionUp",
     },
-    "functionup-thorium"
+    "functionup-thorium"    //secret  key
   );
   res.setHeader("x-auth-token", token);
   res.send({ status: true, data: token });
@@ -67,6 +69,14 @@ const getUserData = async function (req, res) {
 };
 
 const updateUser = async function (req, res) {
+  let token = req.headers["x-Auth-token"];
+  if (!token) token = req.headers["x-auth-token"];
+
+  //If no token is present in the request header return error
+  if (!token) return res.send({ status: false, msg: "token must be present" });
+
+  console.log(token);
+
 // Do the same steps here:
 // Check if the token is present
 // Check if the token present is a valid token
@@ -84,7 +94,24 @@ const updateUser = async function (req, res) {
   res.send({ status: updatedUser, data: updatedUser });
 };
 
+
+const deleteUser = async function (req, res){
+      
+     let userId = req.params.userId;
+     let user = await userModel.findById(userId);
+     if(!user){
+       return res.send("user does no exist");
+     }
+
+     let userdata = req.body;
+     let updatedUser = await userModel.findOneAndUpdate({_id:userId}, userData)
+     res.send({status: updatedUser , data: updatedUser});
+
+}
+
+
 module.exports.createUser = createUser;
 module.exports.getUserData = getUserData;
 module.exports.updateUser = updateUser;
 module.exports.loginUser = loginUser;
+module.exports.deleteUser = deleteUser;
