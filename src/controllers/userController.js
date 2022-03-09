@@ -97,15 +97,21 @@ const updateUser = async function (req, res) {
 
 const deleteUser = async function (req, res){
       
+  let token = req.headers["x-Auth-token"];
+  if (!token) token = req.headers["x-auth-token"];
+
+  //If no token is present in the request header return error
+  if (!token) return res.send({ status: false, msg: "token must be present" });
+
      let userId = req.params.userId;
      let user = await userModel.findById(userId);
      if(!user){
        return res.send("user does no exist");
      }
 
-     let userdata = req.body;
-     let updatedUser = await userModel.findOneAndUpdate({_id:userId}, userData)
-     res.send({status: updatedUser , data: updatedUser});
+    
+     let deleteUser = await userModel.findByIdAndUpdate({_id : userId} , {$set : {isDeleted: true}}, {new: true})
+     res.send({status: true , msg : deleteUser})
 
 }
 
