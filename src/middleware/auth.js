@@ -10,7 +10,8 @@ const authenticate = function(req, res, next) {
 
     let decodedToken = jwt.verify(token, 'functionup-thorium')
     if(!decodedToken) return res.sed({status : false , msg : "token is invalid"})
-
+    
+    res.status(401).send({ msg: "authentication failed"})
     next()
 }
 
@@ -24,23 +25,13 @@ const authorise = async function(req, res, next) {
         if(!decodedToken) return res.send({status : false , msg : "token is invalid"})
 
     // comapre the logged in user's id and the id in request
-        let message = req.body.message;
+        
         let usertobeModified = req.params.userId
         let loggedinUser = decodedToken.userId
 
         if(usertobeModified != loggedinUser) return res.send({status: false , msg: "user logged in is not allow to modify requested users data"})
          
-    //but if user is real then we have to allow them to modify data
-
-    let user = await userModel.findById(req.params.userId)
-    if(!user) return res.send({status : false , msg : "user does not exist"})
-
-    let updatedPosts = user.posts;
-    updatedPosts.push(message)
-
-    let updatedUser = await userModel.findOneAndUpdate({_id: user._id}, {posts: updatedPosts}, {new: true})
-     
-    res.send({status:true , msg: updatedUser})
+        res.status(403).send({  msg : "forbidden"  })
 
     next()
 }

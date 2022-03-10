@@ -16,6 +16,6 @@ router.get("/users/:userId", userController.getUserData)
 
 router.put("/users/:userId", userController.updateUser)
 
-router.post("/users/:userId/posts", userController.postMessage)
+router.post("/users/:userId/posts",middleware.authorise, userController.postMessage)
 
 module.exports = router;

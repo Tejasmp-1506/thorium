@@ -86,7 +86,25 @@ const updateUser = async function (req, res) {
 };
 
 const postMessage = async function (req, res) {
-     middleware.authorise
+// if user is real then we have to allow them to modify data
+     
+  try{
+     let message = req.body.message;
+     let user = await userModel.findById(req.params.userId)
+     if(!user) return res.send({status : false , msg : "user does not exist"})
+ 
+     let updatedPosts = user.posts;
+     updatedPosts.push(message)
+    
+     let updatedUser = await userModel.findOneAndUpdate({_id: user._id}, {posts: updatedPosts}, {new: true})
+      
+     res.send({status:true , msg: updatedUser})
+     res.status(200).send({  msg : updatedUser })
+  }
+  catch (err){
+    console.error(err.message);
+    res.status(500).send({msg : "server error"})
+  }
 }
 
 module.exports.createUser = createUser;
